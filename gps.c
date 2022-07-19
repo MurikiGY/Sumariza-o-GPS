@@ -19,8 +19,6 @@ int calcNumArquivos(DIR *dir){
         if (entry->d_type == DT_REG)
             tam++;
 
-    printf("Quantidade de arquivos encontrados: %d\n", tam);
-
     /* Retorna o ponteiro para o inicio do diretorio */
     rewinddir(dir);
 
@@ -46,7 +44,11 @@ char *makePath(char *dir, char *fileName){
 }
 
 
-/* le arquivos de dados e insere no vetor de estruturas */
+/* le arquivos de dados e insere no vetor de estruturas
+ * dir      = variavel de acesso do diretorio
+ * dirName  = Nome do diretorio
+ * vetLog   = Vetor de logs
+ * */
 int leVetorLogs(DIR *dir, char *dirName, log_t *vetLog){
     FILE            *file;      /* Stream de arquivo        */
     struct dirent   *entry;     /* Estrutura dirent         */
@@ -59,12 +61,13 @@ int leVetorLogs(DIR *dir, char *dirName, log_t *vetLog){
     while((entry = readdir(dir)) != NULL)
         if (entry->d_type == DT_REG){
             
-            /* Abre o arquivo encontrado */
+            /* Monta string do caminho */
             path = makePath(dirName, entry->d_name);
+
+            /* Abre o arquivo */
             if (!(file = fopen(path, "r")))
                 fprintf(stderr, "Erro em abrir o arquivo: %s\n", entry->d_name);
             else {
-
                 zeraEstrutura(&vetLog[i]);
 
                 /* Le o nome da bicicleta e guarda no vetor */
@@ -115,6 +118,8 @@ int main (int argc, char **argv){
 
     /* Calcula numero de logs */
     logTam = calcNumArquivos(directory);
+
+    printf("Quantidade de arquivos encontrados: %d\n", logTam);
 
     /* Testa se existem logs */
     if (logTam == 0){
