@@ -4,119 +4,31 @@
 
 #include "log.h"
 
-/* funcao para desalocar estrutura de linha */
-void desalocaLinha(linha_t *l){
-
-    free(l->atributo);
-    free(l->valor);
-    free(l);
-
-    return;
-}
-
-
-/* le uma linha, retorna o atributo e valor na estrutura */
-linha_t *leAtributoValor (FILE *f){
-    linha_t     *l;               /* Estrutura de retorno   */
-    char        linha[TAMLINHA];  /* String de toda a linha */
-
-    /* Aloca a estrutura de retorno */
-    if (!(l = malloc(sizeof(linha_t)))){
-        fprintf(stderr, "Falha de alocacao da linha\n");
-        return NULL;
-    }
-
-    /* Aloca as strings de dentro da estrutura */
-    if (!(l->atributo = malloc(sizeof(char)*TAMLINHA))){
-        fprintf(stderr, "Falha de alocacao do atributo da linha\n");
-        return NULL;
-    }
-    if (!(l->valor = malloc(sizeof(char)*TAMLINHA))){
-        fprintf(stderr, "Falha de alocacao do valor da linha\n");
-        return NULL;
-    }
-
-    /* le a linha inteira e testa se leu a ultima linha do arquivo */
-    if (!fgets(linha, TAMLINHA, f)){
-        desalocaLinha(l);
-        return NULL;
-    }
-
-//    fprintf(stdout, "%s", linha);
-
-    /* Testa linha vazia */
-//    if (strlen(linha) <= 1){
-//        desalocaLinha(l);
-//        return NULL;
-//    }
-
-    /* Guarda o atributo */
-    strcpy(l->atributo, strtok(linha, " "));
-    l->atributo[strcspn(l->atributo, "\n")] = '\0';
-
-    /* Guarda o valor */
-    strcpy(l->valor, strtok(NULL, "\0"));
-    l->valor[strcspn(l->valor, "\n")] = '\0';
-
-    return l;
-}
-
-
-/* Recebe string por parametro, retorna por parametro atributo e valor */
-void le_linha(FILE *f, char *linha, char *atributo, char *valor){
-
-
-    /* Guarda o atributo */
-    strcpy(atributo, strtok(linha, " "));
-    atributo[strcspn(atributo, "\n")] = '\0';
-
-    /* Guarda o valor */
-    strcpy(valor, strtok(linha, " "));
-    valor[strcspn(valor, "\n")] = '\0';
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Zera valores da estrutura */
 void zeraEstrutura(log_t *log){
     
-    log->distancia = 0;
-    log->velMedia = 0;
-    log->velMax = 0;
-    log->hrMedio = 0;
-    log->hrMax = 0;
-    log->cadMedia = 0;
-    log->subAcumulada = 0;
+    log->distancia      = 0;
+    log->velMedia       = 0;
+    log->velMax         = 0;
+    log->hrMedio        = 0;
+    log->hrMax          = 0;
+    log->cadMedia       = 0;
+    log->subAcumulada   = 0;
 }
 
 
 /* Retorna atributo e valor por parametro */
-void atributoValor(char *l, char *a, char *v){
+void atributoValor(char *l, char **a, char **v){
 
-    a = strtok(l, " ");
-    v = strtok(NULL, "\n");
+    printf("Copiando a string: %s\n", l);
+
+    *a = strtok(l, " ");
+    *v = strtok(NULL, "\n");
+
+    printf("Atributo: %s\n", *a);
+    printf("Valor: %s\n", *v);
+
 }
 
 
@@ -133,12 +45,14 @@ int bikeName (FILE *f, log_t *log){
     fgets(linha, TAMLINHA, f);
 
     /* Retorna o atributo "Gear" e o valor "nome" */
-    AtributoValor(linha, atributo, valor);
+    atributoValor(linha, &atributo, &valor);
 
     /* Testa se atributo eh Gear */
     if (strcmp(atributo, "Gear:")){
+
         fprintf(stderr, "Atributo %s lido diferente de Gear\n", atributo);
         return 1;
+
     } else {
 
         /* Alocacao da string do nome */
@@ -149,141 +63,99 @@ int bikeName (FILE *f, log_t *log){
 
         /* Copia conteudo de "valor" para o nome na estrutura */
         strncpy(log->Nome, valor, strlen(valor) + 1);
+
     }
 
-    /* Usava para alguma coisa */
-    desalocaLinha(linha);
     return 0;
 }
 
 /* Le linha de data do arquivo */
 int bikeDate (FILE *f, log_t *log){
-    linha_t *linha;     /* Estrutura com atributo e valor   */
-//    char aux[TAMLINHA]; /* string auxiliar                  */
+    char linha[TAMLINHA];       /* Estrutura com atributo e valor   */
+    char *atributo;             /* String de atributo               */
+    char *valor;                /* String de valor                  */
 
-    /* Le a data */
-    linha = leAtributoValor(f);
-    if (!linha)
-        return 1;
+    /* Guarda a string da linha em "linha" */
+    fgets(linha, TAMLINHA, f);
 
-    /* Guarda no vetor a data do log */
+    /* Retorna o atributo "Data" e o valor */
+    atributoValor(linha, &atributo, &valor);
+
     /* Testa se o atributo eh uma Data */
-    if (strcmp(linha->atributo, "Date:")){
+    if (strcmp(atributo, "Date:")){
+
         fprintf(stderr, "Atributo lido diferente de Date\n");
         return 1;
+
     } else {
-        /* Testa alocacao da string de data */
-        if (!(log->Data = malloc(sizeof(char)*(strlen(linha->valor) + 1)))){
+
+        /* alocacao da estrutura */
+        if (!(log->Data = malloc(sizeof(char)*(strlen(valor) + 1)))){
             fprintf(stderr, "Erro de alocacao da data do log\n");
             return 1;
-        }
-        /* formata a data */
-        /* LEMBRAR DE FORMATAR A DATA */
 
-        strncpy(log->Data, linha->valor, strlen(linha->valor) + 1);
+        }
+
+        strncpy(log->Data, valor, strlen(valor) + 1);
     }
 
-    desalocaLinha(linha);
     return 0;
 }
 
-/* Recebe uma string e retorna o float formatado */
-//float strtofloat (char *s){
-//    int i, strtam;
-//
-//    strtam = strlen(s) + 1;
-//
-//    for(i=0; i<strtam ;i++){
-//        if (s[i] > 0)
-//    }
-//
-//}
+/* Retorna um inteiro de uma string */
+int strInteger (char *s){
+
+    return atoi(strtok(s, " "));
+
+}
 
 
-/* retorna a diferença em segundos dos dois timestamps */
-//int diferencaTimestamp(char *t1, char *t2){
-
-
-//}
-
-
-/* Le bloco de dados e insere no vetor */
+/* Le bloco de dados e insere no vetor
+ * f    = Arquivo a ser acessado 
+ * log  = Estrutura de dados */
 int leBlocoDados(FILE *f, log_t *log){
-    linha_t *linha;             /* Estrutura com o atributo e valor     */
-//    float   altitude = 0;       /* Salva a altitude                     */
-//    float   speed1 = 0;         /* Salva a primeira velocidade lida     */  
-//    float   speed2 = 0;         /* Salva a ultima velocidade lida       */
-//    float   hrMed1 = 0;         /* Salva o primeiro heart_rate lido     */
-//    float   hrmed2 = 0;         /* Salva o ultimo heart_rate lido       */
-//    float   cadMed1 = 0;        /* Salva a primeira cadencia lida       */
-//    float   cadMed2 = 0;        /* Salva a ultima cadencia lida         */
-//    char    *timestamp;         /* String que guarda o timestamp        */
-//    int     contVel, contHr, contCad;/* Contador de blocos              */
+    char linha[TAMLINHA];       /* Estrutura com atributo e valor   */
+    char *atributo;             /* String de atributo               */
+    char *valor;                /* String de valor                  */
 
-//    if (!(timestamp = malloc(sizeof(char)*TAMLINHA))){
-//        fprintf(stderr, "Erro de alocacao do timestamp\n");
-//        return 0;
-//    }
+    /* Guarda a string da linha em "linha" */
+    fgets(linha, TAMLINHA, f);
 
-    linha = leAtributoValor(f);
+    /* Retorna o atributo "Data" e o valor */
+    atributoValor(linha, &atributo, &valor);
 
-    /* Enquanto não for fim do arquivo */
-    while (!feof(f)){
+    /* testa se leu altitude */
+    if (!strcmp(atributo, "altitude:")){
 
-        /* Le linhas enquanto linha for diferente de NULL */
-        while (linha){
+        /* Atualiza altura */
+        log->subAcumulada = strInteger(valor);
 
-            /* Testa se leu distancia */
-            if (!strcmp(linha->atributo, "distance:")){
-                log->distancia = atof(linha->valor);
-            } //else
-//
-//            /* Testa se leu altitude */
-//            if (!strcmp(linha->atributo, "altitude:"))
-//                /* Testa se leu pela primeira vez */
-//                if (altitude == 0)
-//                    altitude = strtof(linha->valor);
-//                else
-//                    if (linha->valor > altitude)
-//                        log->subAcumulada = log->subAcumulada + (linha->valor - altitude);
-//
-//            /* Testa se leu cadence */
-//            if (!(strcmp(linha->valor, "cadence:"))){
-//                cadMed1 = cadMed2;    
-//                cadMed2 = strtof(linha->valor);
-//            }
-//
-//            /* Testa se leu heart_rate */
-//            if (!(strcmp(linha->valor, "heart_rate:"))){
-//                /* Testa heart_rate maximo */
-//                if (linha->valor > log->hrMax)
-//                    log->hrMax = strtof(linha->valor);
-//                hrMed1 = hrMed2;
-//                hrMed2 = strtof(linha->valor);
-//            }
-//
-//            /* Testa se leu speed */
-//            if (!strcmp(linha->atributo, "speed:")){
-//                /* Testa velocidade maxima */
-//                if (linha->valor > log->velMax)
-//                    log->velMax = strtof(linha->valor);
-//                speed1 = speed2;
-//                speed2 = strtof(linha->valor);
-//            }
-//
-//            /* Testa se leu timestamp */
-//            if (!(strcmp(linha->vetor, "timestamp:"))){
-//                /* Testa se leu o primeiro timestamp */
-//                if
-//            }
+    } else if (!strcmp(atributo, "cadence:")){
 
-            desalocaLinha(linha);
-            linha = leAtributoValor(f);
-        }
+        /* Atualiza cadencia */
+        log->cadMedia = strInteger(valor);
 
-        linha = leAtributoValor(f);
+    } else if (!strcmp(atributo, "distance:")){
+
+        /* Atualiza distancia */
+        log->distancia = log->distancia + strInteger(valor);
+
+    } else if (!strcmp(atributo, "heart_rate:")){
+
+        /* Atualiza heart_rate */
+        log->hrMedio = log->hrMedio + strInteger(valor);
+
+    } else if (!strcmp(atributo, "speed:")){
+
+        /* Atualiza speed */
+        log->velMedia = log->velMedia + strInteger(valor);
+
+//    } else if (!strcmp(atributo, "timestamp:")){
+
+
+
     }
-//    free(timestamp);
+
     return 1;
 }
 
@@ -310,13 +182,13 @@ void imprimeVetorLog(log_t *vetLog, int vetTam){
         fprintf(stdout, "imprimindo log da posição %d:\n", i);
         fprintf(stdout, "Nome: %s\n", vetLog[i].Nome);
         fprintf(stdout, "Data: %s\n", vetLog[i].Data);
-        fprintf(stderr, "Distancia percorrida: %f\n", vetLog[i].distancia);
-        fprintf(stderr, "Velocidade Media: %f\n", vetLog[i].velMedia);
-        fprintf(stderr, "Velocidade Maxima: %f\n", vetLog[i].velMax);
-        fprintf(stderr, "Heart_rate Medio: %f\n", vetLog[i].hrMedio);
-        fprintf(stderr, "Heart_rate Maximo: %f\n", vetLog[i].hrMax);
-        fprintf(stderr, "Cadencia media: %f\n", vetLog[i].cadMedia);
-        fprintf(stderr, "Subida acumulada: %f\n", vetLog[i].subAcumulada);
+        fprintf(stderr, "Distancia percorrida: %d\n", vetLog[i].distancia);
+        fprintf(stderr, "Velocidade Media: %d\n", vetLog[i].velMedia);
+        fprintf(stderr, "Velocidade Maxima: %d\n", vetLog[i].velMax);
+        fprintf(stderr, "Heart_rate Medio: %d\n", vetLog[i].hrMedio);
+        fprintf(stderr, "Heart_rate Maximo: %d\n", vetLog[i].hrMax);
+        fprintf(stderr, "Cadencia media: %d\n", vetLog[i].cadMedia);
+        fprintf(stderr, "Subida acumulada: %d\n", vetLog[i].subAcumulada);
         fprintf(stdout, "\n");
     }
 

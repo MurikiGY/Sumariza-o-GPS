@@ -11,13 +11,13 @@
 struct log {
     char   *Nome;
     char   *Data;
-    int  distancia;
-    int  velMedia;
-    int  velMax;
-    int  hrMedio;
-    int  hrMax;
-    int  cadMedia;
-    int  subAcumulada;
+    float  distancia;
+    float  velMedia;
+    float  velMax;
+    float  hrMedio;
+    float  hrMax;
+    float  cadMedia;
+    float  subAcumulada;
 };
 typedef struct log log_t;
 
