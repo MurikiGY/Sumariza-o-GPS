@@ -88,6 +88,17 @@ void le_linha(FILE *f, char *linha, char *atributo, char *valor){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 /* Zera valores da estrutura */
 void zeraEstrutura(log_t *log){
     
@@ -101,31 +112,46 @@ void zeraEstrutura(log_t *log){
 }
 
 
-/* le o nome da bicicleta do arquivo */
-int bikeName (FILE *f, log_t *log){
-    char linha[TAMLINHA];       /* Estrutura com atributo e valor */
-    char atributo[TAMLINHA];    /* String de atributo */
-    char valor[TAMLINHA];       /* String de valor */
+/* Retorna atributo e valor por parametro */
+void atributoValor(char *l, char *a, char *v){
 
+    a = strtok(l, " ");
+    v = strtok(NULL, "\n");
+}
+
+
+/* le o nome da bicicleta do arquivo
+ * f    = Variavel de acesso ao arquivo
+ * log  = Struct do indice do vetor
+ * */
+int bikeName (FILE *f, log_t *log){
+    char linha[TAMLINHA];       /* Estrutura com atributo e valor   */
+    char *atributo;             /* String de atributo               */
+    char *valor;                /* String de valor                  */
+
+    /* Guarda a string da linha em "linha" */
     fgets(linha, TAMLINHA, f);
 
-    /* Retorna o atributo e o valor lido */
+    /* Retorna o atributo "Gear" e o valor "nome" */
     AtributoValor(linha, atributo, valor);
 
-    /* Guarda no vetor o nome da bicicleta */
     /* Testa se atributo eh Gear */
     if (strcmp(atributo, "Gear:")){
         fprintf(stderr, "Atributo %s lido diferente de Gear\n", atributo);
         return 1;
     } else {
-        /* Testa a alocacao da string do nome */
+
+        /* Alocacao da string do nome */
         if (!(log->Nome = malloc(sizeof(char)*(strlen(valor) + 1)))){
             fprintf(stderr, "Erro de alocacao do nome do log\n");
             return 1;
         }
+
+        /* Copia conteudo de "valor" para o nome na estrutura */
         strncpy(log->Nome, valor, strlen(valor) + 1);
     }
 
+    /* Usava para alguma coisa */
     desalocaLinha(linha);
     return 0;
 }
