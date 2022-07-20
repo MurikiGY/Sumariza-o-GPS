@@ -29,9 +29,6 @@ struct linha {
 typedef struct linha linha_t;
 
 
-/* Le a linha do arquivo e retorna o atributo e o valor */
-linha_t *leAtributoValor(FILE *f);
-
 /* Zera valroes da estrutura */
 void zeraEstrutura(log_t *log);
 

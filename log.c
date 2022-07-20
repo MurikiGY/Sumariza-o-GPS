@@ -21,13 +21,8 @@ void zeraEstrutura(log_t *log){
 /* Retorna atributo e valor por parametro */
 void atributoValor(char *l, char **a, char **v){
 
-    printf("Copiando a string: %s\n", l);
-
     *a = strtok(l, " ");
     *v = strtok(NULL, "\n");
-
-    printf("Atributo: %s\n", *a);
-    printf("Valor: %s\n", *v);
 
 }
 
@@ -118,45 +113,44 @@ int leBlocoDados(FILE *f, log_t *log){
     char *atributo;             /* String de atributo               */
     char *valor;                /* String de valor                  */
 
-    /* Guarda a string da linha em "linha" */
-    fgets(linha, TAMLINHA, f);
+    /* Loop de leitura de dados */
+    while(fgets(linha, TAMLINHA, f)){
 
-    /* Retorna o atributo "Data" e o valor */
-    atributoValor(linha, &atributo, &valor);
+        /* Retorna o atributo "Data" e o valor */
+        atributoValor(linha, &atributo, &valor);
 
-    /* testa se leu altitude */
-    if (!strcmp(atributo, "altitude:")){
+        /* testa se leu altitude */
+        if (!strcmp(atributo, "altitude:")){
 
-        /* Atualiza altura */
-        log->subAcumulada = strInteger(valor);
+            /* Atualiza altura */
+            log->subAcumulada = strInteger(valor);
 
-    } else if (!strcmp(atributo, "cadence:")){
+        } else if (!strcmp(atributo, "cadence:")){
 
-        /* Atualiza cadencia */
-        log->cadMedia = strInteger(valor);
+            /* Atualiza cadencia */
+            log->cadMedia = strInteger(valor);
 
-    } else if (!strcmp(atributo, "distance:")){
+        } else if (!strcmp(atributo, "distance:")){
 
-        /* Atualiza distancia */
-        log->distancia = log->distancia + strInteger(valor);
+            /* Atualiza distancia */
+            log->distancia = log->distancia + strInteger(valor);
 
-    } else if (!strcmp(atributo, "heart_rate:")){
+        } else if (!strcmp(atributo, "heart_rate:")){
 
-        /* Atualiza heart_rate */
-        log->hrMedio = log->hrMedio + strInteger(valor);
+            /* Atualiza heart_rate */
+            log->hrMedio = log->hrMedio + strInteger(valor);
 
-    } else if (!strcmp(atributo, "speed:")){
+        } else if (!strcmp(atributo, "speed:")){
 
-        /* Atualiza speed */
-        log->velMedia = log->velMedia + strInteger(valor);
+            /* Atualiza speed */
+            log->velMedia = log->velMedia + strInteger(valor);
 
-//    } else if (!strcmp(atributo, "timestamp:")){
+        }
 
-
-
+    /* Fim do loop */
     }
 
-    return 1;
+    return 0;
 }
 
 

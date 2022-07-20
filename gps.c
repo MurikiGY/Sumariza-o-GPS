@@ -58,7 +58,8 @@ int leVetorLogs(DIR *dir, char *dirName, log_t *vetLog){
     int             funcOut;    /* Retorno da funcao        */
 
     /* Loop de leitura do diretorio */
-    while((entry = readdir(dir)) != NULL)
+    while((entry = readdir(dir)) != NULL){
+
         if (entry->d_type == DT_REG){
             
             /* Monta string do caminho */
@@ -70,17 +71,20 @@ int leVetorLogs(DIR *dir, char *dirName, log_t *vetLog){
             else {
                 zeraEstrutura(&vetLog[i]);
 
-                /* Le o nome da bicicleta e guarda no vetor */
+                /* Le o nome da bicicleta e guarda no vetor
+                 * retorna != 0 em falha */
                 funcOut = bikeName(file, &vetLog[i]);
                 if (funcOut)
                     return 0;
 
-                /* Le a data da atividade e guarda no vetor */
+                /* Le a data da atividade e guarda no vetor 
+                 * retorna != 0 em falha */
                 funcOut = bikeDate(file, &vetLog[i]);
                 if (funcOut)
                     return 0;
 
-                /* Le o restante do arquivo e atribui no vetor */
+                /* Le o restante do arquivo e atribui no vetor 
+                 * retorna != 0 em falha */
                 funcOut = leBlocoDados(file, &vetLog[i]);
                 if (funcOut)
                     return 0;
@@ -91,6 +95,7 @@ int leVetorLogs(DIR *dir, char *dirName, log_t *vetLog){
             }
             free(path);
         }
+    }
 
     return 1;
 }
@@ -141,6 +146,7 @@ int main (int argc, char **argv){
         return funcOut;
     }
 
+    printf("Aqui\n");
     imprimeVetorLog(vLog, logTam);
 
     /* Ordena vetor em blocos do nome */
